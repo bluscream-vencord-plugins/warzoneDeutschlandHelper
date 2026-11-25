@@ -8,6 +8,7 @@ import { definePluginSettings } from "@api/Settings";
 import definePlugin from "@utils/types";
 
 import { registerServer, TempVoiceServer, unregisterServer } from "../tempVoiceChannels";
+import { PATTERNS as CORE_PATTERNS } from "../tempVoiceChannels/patterns";
 import { Preset, serverSettings } from "../tempVoiceChannels/presets";
 
 const PRESET_KEYS: ["presets"] = ["presets"];
@@ -28,8 +29,13 @@ const settings = definePluginSettings({
     })
 });
 
-// Xavis posts "🎛️ @owner **Channel Control Panel** Du hast diesen Voice-Channel erstellt …" in every new channel.
-const isControlPanel = (content: string) => content.includes("Channel Control Panel");
+/** Everything this plugin matches in Xavis' messages. */
+const PATTERNS = {
+    /** "🎛️ @owner **Channel Control Panel** Du hast diesen Voice-Channel erstellt …", posted in every new channel. */
+    controlPanel: "Channel Control Panel"
+};
+
+const isControlPanel = (content: string) => content.includes(PATTERNS.controlPanel);
 
 const server: TempVoiceServer = {
     name: "WarzoneDeutschlandHelper",
@@ -37,7 +43,7 @@ const server: TempVoiceServer = {
     botId: () => settings.store.botId,
     presets: () => settings.store.presets,
     isPanel: m => isControlPanel(m.content),
-    isCreatedNotice: (m, userId) => isControlPanel(m.content) && new RegExp(`<@!?${userId}>`).test(m.content),
+    isCreatedNotice: (m, userId) => isControlPanel(m.content) && CORE_PATTERNS.mention(userId).test(m.content),
 
     async applyPreset(api, _channelId, preset) {
         await api.pause(1500, 2500);
