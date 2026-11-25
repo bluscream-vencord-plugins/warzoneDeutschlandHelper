@@ -7,15 +7,16 @@
 import { definePluginSettings } from "@api/Settings";
 import definePlugin from "@utils/types";
 
-import { createTempVoice } from "../_tempVoice/core";
-import { tempVoiceSettings } from "../_tempVoice/presets";
+import { registerServer, TempVoiceServer, unregisterServer } from "../tempVoiceChannels";
+import { serverSettings } from "../tempVoiceChannels/presets";
 
-const GUILD_ID = "687345074627149873";
 const PRESET_KEYS: ["presets"] = ["presets"];
 
 const settings = definePluginSettings({
-    ...tempVoiceSettings({
-        guildId: GUILD_ID,
+    ...serverSettings({
+        defaultGuildId: "687345074627149873",
+        defaultBotId: "711242219344101429",
+        guildId: () => settings.store.guildId,
         // Xavis names the channel itself and only offers kick and ban buttons, but members may set the voice status.
         fields: { name: false, limit: false, privacy: false },
         description: "Each preset joins a create channel, waits for Xavis to move you, then sets the channel status.",
@@ -30,11 +31,11 @@ const settings = definePluginSettings({
 // Xavis posts "🎛️ @owner **Channel Control Panel** Du hast diesen Voice-Channel erstellt …" in every new channel.
 const isControlPanel = (content: string) => content.includes("Channel Control Panel");
 
-const tempVoice = createTempVoice({
+const server: TempVoiceServer = {
     name: "WarzoneDeutschlandHelper",
-    guildId: GUILD_ID,
-    botId: "711242219344101429",
-    store: () => settings.store,
+    guildId: () => settings.store.guildId,
+    botId: () => settings.store.botId,
+    presets: () => settings.store.presets,
     isPanel: m => isControlPanel(m.content),
     isCreatedNotice: (m, userId) => isControlPanel(m.content) && m.content.includes(`<@${userId}>`),
 
@@ -47,14 +48,20 @@ const tempVoice = createTempVoice({
         await api.pause(800, 1200);
         api.scrollToBottom();
     }
-});
+};
 
 export default definePlugin({
     name: "WarzoneDeutschlandHelper",
     description: "Creates preset voice channels on the Call of Duty: Warzone Deutschland server and sets their status for you.",
     authors: [{ name: "Bluscream", id: 467777925790564352n }],
+    dependencies: ["TempVoiceChannels"],
     settings,
 
-    contextMenus: tempVoice.contextMenus,
-    flux: tempVoice.flux
+    start() {
+        registerServer(server);
+    },
+
+    stop() {
+        unregisterServer(server.name);
+    }
 });
