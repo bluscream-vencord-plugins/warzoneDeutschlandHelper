@@ -59,7 +59,11 @@ const server: TempVoiceServer = {
 export default definePlugin({
     name: "WarzoneDeutschlandHelper",
     description: "Creates preset voice channels on the Call of Duty: Warzone Deutschland server and sets their status for you.",
-    authors: [{ name: "Bluscream", id: 467777925790564352n }],
+    authors: [
+        { name: "Bluscream", id: 467777925790564352n },
+        { name: "Claude Opus 5.5", id: 0n },
+        { name: "Claude Fable 5.2", id: 0n }
+    ],
     dependencies: ["TempVoiceChannels"],
     settings,
 
