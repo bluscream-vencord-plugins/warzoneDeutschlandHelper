@@ -37,7 +37,7 @@ const server: TempVoiceServer = {
     botId: () => settings.store.botId,
     presets: () => settings.store.presets,
     isPanel: m => isControlPanel(m.content),
-    isCreatedNotice: (m, userId) => isControlPanel(m.content) && m.content.includes(`<@${userId}>`),
+    isCreatedNotice: (m, userId) => isControlPanel(m.content) && new RegExp(`<@!?${userId}>`).test(m.content),
 
     async applyPreset(api, _channelId, preset) {
         await api.pause(1500, 2500);
