@@ -8,7 +8,7 @@ import { definePluginSettings } from "@api/Settings";
 import definePlugin from "@utils/types";
 
 import { registerServer, TempVoiceServer, unregisterServer } from "../tempVoiceChannels";
-import { serverSettings } from "../tempVoiceChannels/presets";
+import { Preset, serverSettings } from "../tempVoiceChannels/presets";
 
 const PRESET_KEYS: ["presets"] = ["presets"];
 
@@ -16,11 +16,11 @@ const settings = definePluginSettings({
     ...serverSettings({
         defaultGuildId: "687345074627149873",
         defaultBotId: "711242219344101429",
-        guildId: () => settings.store.guildId,
+        guildId: (): string => settings.store.guildId,
         // Xavis names the channel itself and only offers kick and ban buttons, but members may set the voice status.
         fields: { name: false, limit: false, privacy: false },
         description: "Each preset joins a create channel, waits for Xavis to move you, then sets the channel status.",
-        usePresets: () => settings.use(PRESET_KEYS).presets,
+        usePresets: (): Preset[] => settings.use(PRESET_KEYS).presets,
         savePresets: presets => settings.store.presets = presets,
         defaultPresets: [
             { id: "rebirth-squad", name: "", status: "Rebirth Squad, jeder willkommen", creatorId: "1075481426260148304", limit: 0, privacy: "unchanged" }
@@ -39,12 +39,12 @@ const server: TempVoiceServer = {
     isPanel: m => isControlPanel(m.content),
     isCreatedNotice: (m, userId) => isControlPanel(m.content) && m.content.includes(`<@${userId}>`),
 
-    async applyPreset(api, channelId, preset) {
+    async applyPreset(api, _channelId, preset) {
         await api.pause(1500, 2500);
-        api.openChat(channelId);
+        api.openChat();
         if (!preset.status) return;
         await api.pause(1500, 2500);
-        await api.setStatus(channelId, preset.status);
+        await api.setStatus(preset.status);
         await api.pause(800, 1200);
         api.scrollToBottom();
     }
