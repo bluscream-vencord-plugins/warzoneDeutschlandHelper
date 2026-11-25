@@ -42,6 +42,7 @@ const server: TempVoiceServer = {
     guildId: () => settings.store.guildId,
     botId: () => settings.store.botId,
     presets: () => settings.store.presets,
+    profileIds: [CORE_PATTERNS.idKinds.activision],
     isPanel: m => isControlPanel(m.content),
     isCreatedNotice: (m, userId) => isControlPanel(m.content) && CORE_PATTERNS.mention(userId).test(m.content),
 
