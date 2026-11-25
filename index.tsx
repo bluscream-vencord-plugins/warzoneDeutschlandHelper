@@ -10,13 +10,14 @@ import definePlugin from "@utils/types";
 import { registerServer, TempVoiceServer, unregisterServer } from "../tempVoiceChannels";
 import { PATTERNS as CORE_PATTERNS } from "../tempVoiceChannels/patterns";
 import { Preset, serverSettings } from "../tempVoiceChannels/presets";
+import { PATTERNS } from "./patterns";
 
 const PRESET_KEYS: ["presets"] = ["presets"];
 
 const settings = definePluginSettings({
     ...serverSettings({
-        defaultGuildId: "687345074627149873",
-        defaultBotId: "711242219344101429",
+        defaultGuildId: PATTERNS.defaults.guildId,
+        defaultBotId: PATTERNS.defaults.botId,
         guildId: (): string => settings.store.guildId,
         // Xavis names the channel itself and only offers kick and ban buttons, but members may set the voice status.
         fields: { name: false, limit: false, privacy: false },
@@ -24,16 +25,10 @@ const settings = definePluginSettings({
         usePresets: (): Preset[] => settings.use(PRESET_KEYS).presets,
         savePresets: presets => settings.store.presets = presets,
         defaultPresets: [
-            { id: "rebirth-squad", name: "", status: "Rebirth Squad, jeder willkommen", creatorId: "1075481426260148304", limit: 0, privacy: "unchanged" }
+            { id: "rebirth-squad", name: "", status: "Rebirth Squad, jeder willkommen", creatorId: PATTERNS.defaults.creatorId, limit: 0, privacy: "unchanged" }
         ]
     })
 });
-
-/** Everything this plugin matches in Xavis' messages. */
-const PATTERNS = {
-    /** "🎛️ @owner **Channel Control Panel** Du hast diesen Voice-Channel erstellt …", posted in every new channel. */
-    controlPanel: "Channel Control Panel"
-};
 
 const isControlPanel = (content: string) => content.includes(PATTERNS.controlPanel);
 
